@@ -6,43 +6,36 @@ import { useEffect, useState } from "react";
 
 export default function RandomUserPage() {
   //user = null or array of object
+  const [isFirstLoad, setisFirstLoad] = useState(true);
   const [users, setUsers] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [genAmount, setGenAmount] = useState(1);
-  const [isfirstload, setisfirstload] = useState(true);
+  useEffect(() => {
+    if (isFirstLoad) {
+      setisFirstLoad(false);
+      return;
+    }
+    localStorage.setItem("amout", genAmount);
+  }, [genAmount]);
+
+  useEffect(() => {
+    const loadedTasks = localStorage.getItem("amout");
+    setGenAmount(loadedTasks);
+  }, []);
 
   const generateBtnOnClick = async () => {
     setIsLoading(true);
     const resp = await axios.get(
-      `https://randomuser.me/api/?results=${genAmount}`
+      https://randomuser.me/api/?results=${genAmount}
     );
-    setIsLoading(false);
-    const users = resp.data.results;
     //Your code here
     //Process result from api response with map function. Tips use function from /src/libs/cleanUser
     //Then update state with function : setUsers(...)
-    const cleanedUser = users.map((user) => cleanUser(user));
+    setIsLoading(false);
+    const users = resp.data.results;
+    const cleanedUser = users.map((person) => cleanUser(person));
     setUsers(cleanedUser);
   };
-
-  useEffect(() => {
-    if (isfirstload) {
-      setisfirstload(false);
-      return;
-    }
-    const strGenAmont = JSON.stringify(genAmount);
-    localStorage.setItem("genAmount", strGenAmont);
-  }, [genAmount]);
-
-  useEffect(() => {
-    const strGenAmont = localStorage.getItem("genAmount");
-    if (strGenAmont === "null") {
-      setGenAmount(1);
-      return;
-    }
-    const loadedGenAount = JSON.parse(strGenAmont);
-    setGenAmount(loadedGenAount);
-  }, []);
 
   return (
     <div style={{ maxWidth: "700px" }} className="mx-auto">
@@ -65,13 +58,13 @@ export default function RandomUserPage() {
       )}
       {users &&
         !isLoading &&
-        users.map((user) => (
+        users.map((index) => (
           <UserCard
-            name={user.name}
-            imgUrl={user.imgUrl}
-            address={user.address}
-            email={user.email}
-            key={user.email}
+            name={index.name}
+            imgUrl={index.imgUrl}
+            address={index.address}
+            email={index.email}
+            key={index.email}
           />
         ))}
     </div>
